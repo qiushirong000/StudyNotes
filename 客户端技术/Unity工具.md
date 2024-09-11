@@ -99,6 +99,8 @@ UniRx 是一个 Unity3D 的编程框架。它专注于解决时间上异步的�
 
 （3）实现MVP架构模式
 
+![alt text](image-5.png)
+
 （4）对 UGUI/Unity API 提供了增强，很多需要写大量代码的 UI 逻辑，使用 UniRx 优雅实现。
 
 ###
@@ -107,3 +109,122 @@ UniRx 是一个 Unity3D 的编程框架。它专注于解决时间上异步的�
 -------------------------------
 
 ## UniTask
+
+### 1. 什么是UniTask？
+Unity 的 UniTask 是一种用于异步编程的 C# 库，它扩展了 .NET 中的 Task 和 await/async 模式。
+
+### 2. 为什么需要UniTask？
+（1）与传统的 Task 和 async/await 模式相比，UniTask 更加轻量级，因为它不需要像 Task 一样创建和管理线程池。
+
+（2）UniTask 具有更高的性能，因为它使用了更少的内存和 CPU 资源，几乎0GC消耗。
+
+（3）UniTask 还提供了更多的功能，如取消和超时等功能，这些功能在传统的 Task 中并不容易实现。
+
+### 3. UniTask的常见用法？
+
+（1）异步等待：使用 await 关键字，可以等待一个异步操作完成，这样就不需要手动处理回调或使用协程。
+
+（2）延迟执行：使用 UniTask.Delay 方法可以在指定的时间后执行一个操作，而不需要使用协程或计时器。
+``` 
+  await UniTask.Delay(TimeSpan.FromSeconds(1.0f));
+```
+
+（3）同步化操作：使用 UniTask.SwitchToMainThread 方法可以在主线程上执行一个操作，这对于访问 Unity 的组件或 API 非常有用。
+```
+  // 异步更新UI
+  await UniTask.SwitchToMainThread(); // 切换到主线程更新UI
+  SomeUIComponent.text = "Updated via UniTask";
+```
+
+（4）迭代器：使用 UniTask.ToCoroutine 方法可以将一个 UniTask 对象转换为 IEnumerator，从而可以在协程中使用。
+
+（5）任务链：使用 UniTask.WhenAll 或 UniTask.WhenAny 方法可以创建一个任务链，等待多个异步操作完成后执行下一步操作。
+
+```
+using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+
+public class UniTaskExampleAdvanced : MonoBehaviour
+{
+    async void Start()
+    {
+        var tasks = new List<UniTask<string>>(); // 创建一个任务列表来存储异步操作
+        
+        // 并发启动多个下载任务
+        for (int i = 0; i < 5; i++)
+        {
+            string url = $"https://example.com/resource{i}.txt";
+            tasks.Add(DownloadTextAsync(url));
+        }
+
+        // 使用UniTask.WhenAll等待所有任务完成
+        var results = await UniTask.WhenAll(tasks);
+
+        foreach (var result in results)
+        {
+            Debug.Log($"Downloaded text: {result}");
+        }
+    }
+
+    private async UniTask<string> DownloadTextAsync(string url)
+    {
+        var www = UnityWebRequest.Get(url);
+        using (var op = UnityWebRequestAsyncOperation.FromAsync(www.SendWebRequest))
+        {
+            await op.ToUniTask();
+            if (www.result == UnityWebRequest.Result.Success)
+            {
+                return www.downloadHandler.text;
+            }
+            else
+            {
+                Debug.LogError($"Failed to download: {www.error}");
+                return null;
+            }
+        }
+    }
+}
+
+```
+
+（6）取消任务：使用 UniTaskCancellationToken 类可以取消异步操作，这对于长时间运行的操作非常有用
+
+```
+using Cysharp.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class UniTaskCancellationExample : MonoBehaviour
+{
+    public Button startButton;
+    public Button cancelButton;
+    private CancellationTokenSource cancellationTokenSource;
+
+    private async void Start()
+    {
+        startButton.onClick.AddListener(async () => await LongRunningTaskAsync());
+        cancelButton.onClick.AddListener(() => CancelLongRunningTask());
+
+        cancellationTokenSource = new CancellationTokenSource();
+    }
+
+    private async UniTaskVoid LongRunningTaskAsync()
+    {
+        try
+        {
+            Debug.Log("Starting long running task...");
+            await UniTask.Delay(TimeSpan.FromSeconds(10), cancellationTokenSource.Token);
+            Debug.Log("Long running task completed.");
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.LogWarning("Long running task was cancelled.");
+        }
+    }
+
+    private void CancelLongRunningTask()
+    {
+        cancellationTokenSource.Cancel();
+    }
+}
+```
