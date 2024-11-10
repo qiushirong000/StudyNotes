@@ -55,3 +55,20 @@ EventSystem: UGUI事件管理系统,通过此系统完成我们所知的UI交互
 ### 4. 有一些公共的Prefab会在多个UI界面里显示,这些公共Prefab怎么处理? 要多个界面里重复实例化吗?
 实例化一次，存储prefab的配置文件json，使用时加载用于设置预制体在不同UI界面的状态。
 ![alt text](image-6.png)
+
+
+### 5. 垃圾回收机制
+标记清除法：
+ 标记 -> 清除 -> 压缩
+
+分代策略：
+1. 堆(Heap)内存管理区域分为3个:#Gen 0 collections,#Gen 1
+collections, #Gen 2 collections.
+2. 如果Gen 0 heap内存达到阀值,则触发0代GC,0代GC后Gen 0中幸
+存的对象进入Gen1。如果Gen1的内存达到阀值,则进行1代GC, 1
+代GC将Gen 0 heap和Gen 1 heap一起进行回收,幸存的对象进入
+Gen2。2代GC将Gen 0 heap、Gen 1 heap和Gen 2 heap一起回收。
+如果GC跑过了,内存空间依然不够用,那么就抛出了OutOfMemoryException异常。
+3. Gen 0和Gen 1比较小,这两个代龄加起来总是保持在16M左右미;
+Gen2的大小由应用程序确定,可能达到几G,因此0代和1代GC的成
+本非常低,2代GC称为full GC,通常成本很高。
