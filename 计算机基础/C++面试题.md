@@ -253,6 +253,9 @@ C++： 静态变量和全局变量仅当首次被使用的时候才进行初始�
 
 弱指针（weak_ptr）：指向 shared_ptr 指向的对象，能够解决由shared_ptr带来的循环引用问题。weak_ptr是弱引用，不拥有所指向的对象，不会阻止对象的释放。shared_ptr可以直接赋值给weak_ptr，weak_ptr通过lock()成员函数来获取share_ptr，如果资源已释放则返回nullptr。如果你希望删除指向已释放变量的weak_ptr，可以使用weak_ptr的expired()函数来检查指向的变量是否已释放。如果expired()返回true，表示该weak_ptr指向的变量已经被释放，可以选择将该weak_ptr设置为空或者销毁该weak_ptr对象，调用reset();。
 
+1）同一个shared_ptr被多个线程“读”是安全的；
+2）同一个shared_ptr被多个线程“写”是不安全的；
+3）共享引用计数的不同的shared_ptr被多个线程”写“ 是安全的。
 
 ### 30. 一个unique_ptr怎么赋值给另一个unique_ptr对象？
 
@@ -664,7 +667,7 @@ memmove 的实现则更为复杂，它能够处理源地址和目标地址重叠
 
 ### 75. malloc一次性最大能申请多大内存空间
 
-编译器根据初始值来推算变量的类型，要求用auto定义变量时必须有初始值。编译器推断出来的auto类型有时和初始值类型并不完全一样，编译器会适当改变结果类型使其更符合初始化规则。
+取决于多个因素，包括操作系统的限制、硬件架构、进程的地址空间以及运行时环境的具体实现。
 
 ### 76.  public、protected、private的区别
 
