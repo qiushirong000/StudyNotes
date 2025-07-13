@@ -72,3 +72,39 @@ Gen2。2代GC将Gen 0 heap、Gen 1 heap和Gen 2 heap一起回收。
 3. Gen 0和Gen 1比较小,这两个代龄加起来总是保持在16M左右미;
 Gen2的大小由应用程序确定,可能达到几G,因此0代和1代GC的成
 本非常低,2代GC称为full GC,通常成本很高。
+
+
+
+Prefab：
+------
+.prefab文件是一种特殊的资源类型，它记录了预制件（Prefab）的定义和配置。
+
+https://blog.csdn.net/qq_33060405/article/details/143221531
+
+### 1. 主要内容和作用是
+1. 对象结构
+（1）对象树：.prefab文件记录了预制件中所有游戏对象的层次结构和父子关系。（2）组件信息：每个游戏对象上的组件（如Transform、MeshFilter、Renderer等）及其属性都会被记录在.prefab文件中。
+2. 资源引用
+（1）资源路径：.prefab文件中包含了对外部资源的引用，例如纹理、材质、音频文件等。这些引用通常是以资源的GUID或相对路径的形式存储的。
+（2）动态加载：当预制件被实例化时，Unity会根据这些引用来动态加载所需的资源。
+3. 默认值和属性
+（1）默认属性值：.prefab文件记录了预制件中各个组件的默认属性值。
+（2）可编辑区域：预制件中的某些属性可以被标记为可编辑的，这样在使用预制件时可以修改这些属性而不影响原始的.prefab文件。
+4. 版本控制信息
+（1）GUID：每个.prefab文件都有一个全局唯一标识符（GUID），Unity使用这个GUID来管理和引用预制件。
+（2）依赖关系：.prefab文件可能包含对该.prefab文件所依赖的其他资源的引用信息。
+
+### 2. Prefab的动态加载方式： 
+
+当通过Resources.Load、AssetBundle.LoadAsset读取prefab文件时，引擎会根据组织关系展开prefab，加载关联资源。
+
+GameObject、Component是Unity通过“在C++定义、给C#暴露接口”的形式，封装了某些功能的接口。他们索引了资源，但他们本身不是资源。例如Transform记录了Position、Rotation、Scale信息；MeshRenderer负责从MeshFilter、Material中获得需要的模型、材质数据，告诉Unity该如何渲染。但是，它们并不是“资源”，而是间接引用了资源。
+
+Texture、Mesh、Shader、Material、AnimatorController、AnimationClip等，它们保存了实际的数据，也可以从文件系统中读取、保存到文件。这些是真正意义上的“资源”（Assets）。
+
+### 3. 序列化相关，什么是“GUID”、“Local ID”、“ Instance ID”。
+1. File GUID：资源第一次被导入Assets目录内（以下称“工程内”），Unity自动为其分配的一个文件唯一ID，记录在.meta文件中。File GUID设计的初衷，是让引擎的资源管理，可以忽略文件路径的变化。当贴图挪动位置时，引用它的材质球不需要同步地修改。
+
+2. Local ID：同一个文件内，多个UnityEngine.Object（以下称“Object”）的文件内唯一ID。如一个Prefab，可能存在多个子GameObject节点、多个Component。这些Object在Prefab中通过Local ID进行索引。
+
+3. Instance ID：运行时为每个Object生成的Int32索引，本次运行期间唯一。对于Resources下的资源、直接打进包内的场景，Instance ID将在游戏启动时创建；对于AssetBundle内的资源，Instance ID将在加载Object时创建。运行时的比较、加载、操作，都将以Instance ID为Key。只有需要加载时，才使用File GUID + Local ID去查找、加载资源。
