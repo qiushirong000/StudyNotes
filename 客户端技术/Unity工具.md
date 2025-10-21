@@ -294,3 +294,9 @@ public class UniTaskCancellationExample : MonoBehaviour
     }
 }
 ```
+### 5.	UniTask能在同一个函数里连续await同一个Task任务吗？
+不能，UniTask的设计遵循C#异步编程的通用规则​​，任务一旦完成（或取消/报错），根据任务状态机规则，UniTask会进入​​已完成状态，再次await会导致未定义行为。
+
+解决方法：（1）重新创建任务；（2）缓存结果（避免重复计算）；（3）使用 UniTask.Defer（延迟执行
+
+
