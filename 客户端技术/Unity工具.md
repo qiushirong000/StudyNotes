@@ -299,4 +299,95 @@ public class UniTaskCancellationExample : MonoBehaviour
 
 解决方法：（1）重新创建任务；（2）缓存结果（避免重复计算）；（3）使用 UniTask.Defer（延迟执行
 
+-------------------------------
 
+## UIParticle
+UIParticle 是 Unity 中用于在 UI 系统上显示粒子特效的解决方案，它解决了原生 ParticleSystem 无法与 UGUI 系统完美整合的问题。
+
+参考：https://zhuanlan.zhihu.com/p/633932778
+
+### UIParticle的作用
+
+1. 让原本为 3D 场景设计的 ParticleSystem 能够被 UI 的 Mask/RectMask2D 裁剪。
+2. 支持在 Canvas 下显示，并与UI元素正确叠加排序。
+​
+### UIParticle的原理
+1. 将 ParticleSystem 的渲染输出转化为UI的Mesh(顶点、三角形、UV等)。通过UGUI的渲染管线输出到Canvas。
+2. 继承自MaskableGraphic，因此支持所有UGUI的遮罩和裁剪功能。
+
+UIParticle就解决了UGUI与Particle System不兼容的问题，通过在其节点上挂载CanvasRender,然后通过ParticleSystemRenderer的BakeMesh接口将网格传给CanvasRender,做到节点数据跟UGUI的处理方式一致。
+
+### UIParticle的特性和优点
+​​无缝UI整合、​​渲染转换机制​​、​​跨平台支持​​、​​高级特效功能​​
+
+-------------------------------
+
+## HybridCLR
+
+### HybridCLR的优势：
+![alt text](image.png)
+HybridCLR是一个特性完整、零成本、高性能、低内存的近乎完美的Unity全平台原生c#热更新解决方案。
+
+（1）特性完整。支持反射、多线程、异步等完整C#特性，与常规Unity开发流程完全一致。
+
+（2）零成本。无需学习其他脚本语言，通过扩充IL2CPP运行时，使其支持"AOT+解释执行"混合模式，热更新代码与原生AOT代码​​类型系统完全统一​​，无需适配器或生成代码。（IL2CPP：C#到中间语言（IL）的转换​，​​IL到C++代码的转换，C++代码由目标平台的本地编译器编译为二进制文件​）
+
+（3）高性能。实现了一个极其高效的寄存器解释器，通过​​差分混合DLL技术​​，未修改代码以AOT模式运行，修改部分解释执行，整体性能比Lua快3-10倍，比ILRuntime快2-5倍。
+
+（4）低内存。热更新脚本中定义的类跟普通c#类占用一样的内存空间，远优于其他热更新方案。
+
+### 不同热更方式的原理
+
+（1）C#热更具体做法：将需要频繁更改的逻辑部分独立出来做成DLL，在主模块调用这些DLL，主模块代码是不修改的，只有作为业务（逻辑）模块的DLL部分需要修改。游戏运行时通过反射机制加载这些DLL就实现了热更新。ILRuntime 就是使用C#进行的热更新。
+
+（2）lua热更原理：逻辑代码转化为脚本，脚本转化为文本资源，以更新资源的形式更新程序。
+
+
+ ## 性能分析
+ https://blog.csdn.net/qq_33060405/article/details/147377246
+
+ ### profiler的功能和适用场景
+（1） Profiler（性能分析器）
+功能：采集和展示CPU、GPU、内存、渲染、物理、音频等各模块的实时性能数据。常用模块：CPU Usage、GPU Usage、Memory、Rendering、Physics、Audio、Network等。
+
+（2）Memory Profiler
+功能：抓取和对比内存快照，分析资源、对象、GC堆、原生内存等分布。
+适用场景：内存泄漏排查、资源占用分析、内存增长趋势监控。
+
+（3） Frame Debugger
+功能：逐步回放一帧的渲染过程，查看每个Drawcall的资源、状态、Shader等。
+适用场景：渲染流程分析、Drawcall优化、资源冗余排查。
+
+（4） Profiler API
+功能：通过代码自定义埋点，记录特定逻辑的性能数据。
+适用场景：业务逻辑性能监控、关键路径分析。
+
+
+-------------------------------
+
+### profiler的原理
+（1）Profiler原理
+
+数据采集：Unity在引擎各模块、C#脚本、渲染管线等关键节点插入采样点（ProfilerMarker），记录时间戳、调用关系、分配信息等。
+
+数据传输：采集到的数据通过本地或网络传输到编辑器（或写入文件）。
+
+数据展示：编辑器端将数据解析为树状结构（Hierarchy）、时间线（Timeline）等多种可视化方式，便于开发者分析。
+
+（2）Memory Profiler原理
+
+快照抓取：在特定时刻冻结内存状态，遍历所有托管对象、原生对象、资源等，记录其类型、引用关系、大小等。
+
+快照对比：对比两次快照，分析对象增减、引用链变化，定位泄漏或未释放资源。
+
+（3）Frame Debugger原理
+
+渲染命令捕获：在一帧内，记录所有渲染命令（Drawcall、SetPass、Clear等）。
+
+逐步回放：开发者可以逐步执行每个渲染命令，观察场景变化和资源绑定情况。
+
+（4）Profiler API原理
+
+代码插桩：开发者用ProfilerMarker.Begin()/End()包裹代码段，手动采集耗时数据。
+
+与主Profiler数据合并：自定义埋点数据会和引擎采集的数据一起展示在Profiler中。
