@@ -258,6 +258,7 @@ Texture、Mesh、Shader、Material、AnimatorController、AnimationClip等，它
 
 模型：
 ------
+
 模型文件包括网格、材质和纹理。对于动画角色，它们还会包含动画数据。
 
 网格体与材质一起使用，网格描述 GPU 渲染的对象的形状，材质描述其表面的外观。
@@ -273,3 +274,11 @@ Texture、Mesh、Shader、Material、AnimatorController、AnimationClip等，它
 （5） 碰撞体‌（Collider）：用于物理交互的几何体数据，可独立于网格存在。
 
 （6） 单位转换‌：调整模型与Unity默认单位（米）的对应关系，避免比例失调。 
+
+材质 Material包含贴图 Map，贴图包含纹理 Texture。
+
+纹理是最基本的数据输入单位，游戏领域基本上都用的是位图。此外还有程序化生成的纹理 Procedural Texture。
+
+贴图的英语 Map 其实包含了另一层含义就是“映射”。其功能就是把纹理通过 UV 坐标映射到3D 物体表面。贴图包含了除了纹理以外其他很多信息，比方说 UV 坐标、贴图输入输出控制等等。
+
+材质是一个数据集，主要功能就是给渲染器提供数据和光照算法。贴图就是其中数据的一部分，根据用途不同，贴图也会被分成不同的类型，比方说 Diffuse Map，Specular Map，Normal Map 和 Gloss Map 等等。另外一个重要部分就是光照模型 Shader ，用以实现不同的渲染效果。
