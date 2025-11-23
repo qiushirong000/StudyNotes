@@ -1,8 +1,7 @@
-## Unity原理解析
-
-
-组件
+Unity原理解析
 --------------
+
+## 组件
 
 ### 1. Unity脚本的生命周期
 
@@ -94,8 +93,8 @@ Animation：
 不能随意删除meta文件：uuid是资源的唯一标识符，资源文件直接的引用都是依赖于uuid的，一旦删除了meta文件，那么这个资源的uuid就发生了变化，之后使用这个资源的地方就会遇到无法找到资源的问题。
 
 
-UGUI：
---------------
+## UGUI：
+
 锚点（anchors）：
 是相对父节点的属性，决定了当屏幕分辨率发生改变的时候，UI的位置和大小如何变化。
 
@@ -222,8 +221,8 @@ Unity的增量式垃圾回收（Incremental Garbage Collection）主要将​​
 为了实现安全的增量标记，Unity 的垃圾回收器引入了​​写屏障​​机制。在增量标记过程中，如果游戏代码修改了一个已经被标记为“黑色”（表示已处理完成）的对象，使其引用了一个尚未被标记的“白色”对象，写屏障会立即将这个新引用的白色对象标记为灰色，确保它不会被错误回收
 
 
-Prefab：
-------
+## Prefab：
+
 .prefab文件是一种特殊的资源类型，它记录了预制件（Prefab）的定义和配置。
 
 https://blog.csdn.net/qq_33060405/article/details/143221531
@@ -256,8 +255,8 @@ Texture、Mesh、Shader、Material、AnimatorController、AnimationClip等，它
 
 3. Instance ID：运行时为每个Object生成的Int32索引，本次运行期间唯一。对于Resources下的资源、直接打进包内的场景，Instance ID将在游戏启动时创建；对于AssetBundle内的资源，Instance ID将在加载Object时创建。运行时的比较、加载、操作，都将以Instance ID为Key。只有需要加载时，才使用File GUID + Local ID去查找、加载资源。
 
-模型：
-------
+## 模型：
+
 
 模型文件包括网格、材质和纹理。对于动画角色，它们还会包含动画数据。
 
